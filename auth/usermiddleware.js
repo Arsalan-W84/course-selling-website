@@ -1,5 +1,5 @@
 const jwt = require("jsonwebtoken");
-const USER_SECRET = "CERYTUANUMJOIUG5674VBNC";
+const USER_SECRET = require("../config");
 
 function user_auth(req,res,next)
 { 

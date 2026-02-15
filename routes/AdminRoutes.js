@@ -2,7 +2,7 @@ const {Router} = require("express");
 const AdminRouter  = Router();
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
-const ADMIN_SECRET = "UGEOIC56YTUA74VBNNRUMJC";
+const ADMIN_SECRET = require("../config");
 const {Adminmodel} = require("../db");
 const {Coursemodel} = require("../db");
 
