@@ -4,7 +4,7 @@ const mongoose = require("mongoose");
 //instead of writing each individual route, create handlers in routes folder
 //import your routes
 const { userRouter } = require("./routes/userRoutes");
-const { CourseRouter } = require("./routes/courseRoutes");
+//const { CourseRouter } = require("./routes/courseRoutes");
 const { AdminRouter } = require("./routes/AdminRoutes");
 
 app.use(express.json());

@@ -5,27 +5,22 @@ function admin_auth(req,res,next)
 {
    const token = req.headers.token;
     if(token){//token found , now verify it 
-        const founduser = jwt.verify(token , ADMIN_SECRET);
-        if(founduser){
+        try{
+            const founduser = jwt.verify(token , ADMIN_SECRET);
             req.userId = founduser.id;
             next();
-        }else{
-            return res.json(403).json({
-                message : "User not signed in!"
-            });
-        }
+        }catch(e){
+            return res.status(401).json({
+                message : "Token invalid or expired!"
+            })
+        }  
     }else{//token wasn't found
-        return res.status(403).json({
-            message : "Unauthorized!"
+           return res.status(403).json({
+            message : "Empty token!"
         });
     }
 }
 
-
-
-module.exports = {
-    user_auth : user_auth
-};
 
 module.exports = {
     admin_auth : admin_auth
