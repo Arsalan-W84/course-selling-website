@@ -3,7 +3,7 @@ const userRouter = Router();
 //import {z} from require("zod");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
-const USER_SECRET = "CERYTUANUMJOIUG5674VBNC";
+const {USER_SECRET} = require("../config");
 const {Usermodel , Purchasemodel} = require("../db");
 
 

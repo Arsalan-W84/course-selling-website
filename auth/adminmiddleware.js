@@ -1,5 +1,5 @@
 const jwt = require("jsonwebtoken");
-const ADMIN_SECRET = "UGEOIC56YTUA74VBNNRUMJC";
+const {ADMIN_SECRET} = require("../config");
 
 function admin_auth(req,res,next)   
 {
