@@ -60,6 +60,10 @@ AdminRouter.post("/login" , async function(req,res) {
 });
 
 AdminRouter.post("/create-course" , admin_auth , async function(req,res) {
+    
+});
+
+AdminRouter.put("/update-course" , admin_auth , async function(req,res) {
     return res.json({
         message : "Create-course endpoint"
     })
