@@ -2,7 +2,7 @@ const {Router} = require("express");
 const AdminRouter  = Router();
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
-const ADMIN_SECRET = require("../config");
+const ADMIN_SECRET = process.env.ADMIN_SECRET;
 const {Adminmodel} = require("../db");
 const {Coursemodel} = require("../db");
 
@@ -36,10 +36,13 @@ AdminRouter.post("/login" , async function(req,res) {
             const founduser  = await Adminmodel.findOne({
                 email : email 
             });
+            
             if(founduser){
                 //use bcrypt.compare to verify the hashed passwords
                 const passwordMatch = await bcrypt.compare(password , founduser.password);
+                
                 if(passwordMatch){
+                    console.log(ADMIN_SECRET);
                     const token = jwt.sign({
                         id : founduser._id
                     },ADMIN_SECRET);
@@ -55,25 +58,113 @@ AdminRouter.post("/login" , async function(req,res) {
                 })
             }
         }catch(err){
-            return res.status(403).json({message : err});
+            return res.status(403).json({message : "Error!!"});
         }
 });
 
-AdminRouter.post("/create-course" , admin_auth , async function(req,res) {
-    
+AdminRouter.post("/course/create" , admin_auth , async function(req,res) {
+    const AdminId = req.userId;
+    const {title,description,price } = req.body;
+    //create a new course 
+    try{
+        const course = await Coursemodel.create({
+        creatorId : AdminId,
+        title : title,
+        description : description,
+        price : price
+        }); 
+        return res.json({
+        message : "Course Created",
+        Creator  : AdminId,
+        title : course.title,
+        courseId : course._id
+        });
+    }catch(err){
+        return res.status(500).json({
+            message : "Error creating the course "
+        });
+    }
 });
 
-AdminRouter.put("/update-course" , admin_auth , async function(req,res) {
-    return res.json({
-        message : "Create-course endpoint"
-    })
+AdminRouter.put("/course/update" , admin_auth , async function(req,res) {
+    const AdminId = req.userId; //objectID
+    const {title,description,price,courseId } = req.body;
+    //zod validation of entered inputs required
+    //update the course ONLY IF THE ADMIN IS THE CREATOR OF THAT COURSE 
+    const course = await Coursemodel.findOne({
+        _id : courseId,
+        creatorId : AdminId
+    });
+    if(!course){
+        return res.status(403).json({
+            message : "Unauthorized or course not found!"
+        });
+    }
+    try{
+        await Coursemodel.updateOne({
+            _id : courseId
+        },{
+        title : title,
+        description : description,
+        price : price
+        }); 
+        return res.status(200).json({
+        message : "Course Updated",
+        })
+
+    }catch(err){
+        return res.status(500).json({
+            message : "Error updating the course "
+        })
+    }
 });
 
-AdminRouter.delete("/delete-course" , admin_auth , async function(req,res) {
-    return res.json({
-        message : "Delete-course endpoint"
-    })
+AdminRouter.get("/course/all" , admin_auth , async function(req,res) {
+    const AdminId = req.userId;
+    try{
+        const courses = await Coursemodel.find({
+            creatorId :  AdminId
+        });
+        return res.status(200).json({
+            courses : courses
+        });
+    }catch(e){
+      return res.status(500).json({
+            message : "Error getting the course "
+        }); 
+    }
+
 });
+
+AdminRouter.delete("/course/delete" , admin_auth , async function(req,res) {
+    const AdminId = req.userId;
+    const {title,desciption,price,courseId } = req.body;
+    //update the course ONLY IF THE ADMIN IS THE CREATOR OF THAT COURSE 
+    const course = await Coursemodel.findOne({
+        _id : courseId ,
+        creatorId : AdminId
+    });
+    if(!course){
+        return res.status(403).json({
+            message : "Unauthorized or course does not exist!"
+        });
+    }
+    try{
+        await Coursemodel.deleteOne({
+            _id : courseId,
+            creatorId : AdminId
+        });
+        return res.status(200).json({
+            message : "Course Deleted Successfully!"
+        });
+
+    }catch(e){
+        return res.status(500).json({
+            message : "Error in deleting this course!"
+        })
+    }
+});
+
 
 module.exports = {
     AdminRouter : AdminRouter
