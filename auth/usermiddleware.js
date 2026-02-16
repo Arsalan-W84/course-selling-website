@@ -1,5 +1,5 @@
 const jwt = require("jsonwebtoken");
-const USER_SECRET = require("../config");
+const USER_SECRET = process.env.USER_SECRET;
 
 function user_auth(req,res,next)
 { 
@@ -17,7 +17,7 @@ function user_auth(req,res,next)
         
     }else{//token wasn't found
         return res.status(403).json({
-            message : "Empty token!"
+            message : "Please Enter token!"
         });
     }
 }
